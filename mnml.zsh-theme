@@ -39,12 +39,12 @@ collapse_pwd() {
 # rendering default background/foreground.
 prompt_segment() {
   local bg fg
-  [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
+  [[ -n $1 && $1 != "black" ]] && bg="%K{$1}" || bg="%k"
   [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
   if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
-    echo -n " %{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%} "
+    echo -n "%{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%} "
   else
-    echo -n "%{$fg%} "
+    echo -n "%{$bg%}%{$fg%} "
     # echo $(pwd | sed -e "s,^$HOME,~," | sed "s@\(.\)[^/]*/@\1/@g")
     # echo $(pwd | sed -e "s,^$HOME,~,")
   fi
@@ -66,8 +66,10 @@ prompt_end() {
 prompt_context() {
   local user=`whoami`
 
-  if [[ "$user" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment black default "%(!.%{%F{yellow}%}.)"
+  if [[ "$user" == "root" ]]; then
+    prompt_segment red default "%F{white}%m %k%F{red}"
+  elif [[ -n "$SSH_CLIENT" ]]; then
+    prompt_segment blue default "%F{black}%n@%F{white}%m %k%F{blue}"
   fi
 }
 
